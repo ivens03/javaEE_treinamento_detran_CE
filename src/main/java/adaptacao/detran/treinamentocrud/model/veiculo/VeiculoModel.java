@@ -1,7 +1,7 @@
 package adaptacao.detran.treinamentocrud.model.veiculo;
 
+import adaptacao.detran.treinamentocrud.dto.veiculo.VeiculoDTO;
 import adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel;
-
 import java.io.Serializable;
 
 public class VeiculoModel implements Serializable {
@@ -19,6 +19,18 @@ public class VeiculoModel implements Serializable {
         this.placa = placa;
         this.renavam = renavam;
         this.proprietario = proprietario;
+    }
+
+    public void atualizarVeiculoComDTO(VeiculoDTO veiculoDTO) {
+        if (veiculoDTO.getPlaca() != null) {
+            setPlaca(veiculoDTO.getPlaca());
+        }
+        if (veiculoDTO.getRenavam() != null) {
+            setRenavam(veiculoDTO.getRenavam());
+        }
+        if (veiculoDTO.getProprietario() != null) {
+            setProprietario(veiculoDTO.getProprietario());
+        }
     }
 
     public Long getId() {

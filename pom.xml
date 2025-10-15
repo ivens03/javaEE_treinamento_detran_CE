@@ -75,6 +75,24 @@
             <artifactId>ibatis-sqlmap</artifactId>
             <version>2.3.4.726</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.3</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -84,6 +102,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
             </plugin>
+
         </plugins>
     </build>
 </project>

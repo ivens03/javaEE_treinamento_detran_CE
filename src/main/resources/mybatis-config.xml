@@ -15,6 +15,7 @@
         </environment>
     </environments>
     <mappers>
-        <mapper resource="adaptacao/detran/treinamentocrud/repository/proprietario/ProprietarioMapper.xml"/>
+        <mapper resource="ProprietarioMapper.xml"/>
+        <mapper resource="VeiculoMapper.xml"/>
     </mappers>
 </configuration>

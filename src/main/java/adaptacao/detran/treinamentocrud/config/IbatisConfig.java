@@ -19,6 +19,9 @@ public class IbatisConfig {
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Erro ao construir o SqlMapClient: " + e, e);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 

@@ -17,5 +17,6 @@
     </transactionManager>
 
     <sqlMap resource="ProprietarioMapper.xml"/>
+    <sqlMap resource="VeiculoMapper.xml"/>
 
 </sqlMapConfig>

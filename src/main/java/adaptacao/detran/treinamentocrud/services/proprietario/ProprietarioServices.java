@@ -3,6 +3,7 @@ package adaptacao.detran.treinamentocrud.services.proprietario;
 import adaptacao.detran.treinamentocrud.dto.proprietario.ProprietarioDTO;
 import adaptacao.detran.treinamentocrud.dto.proprietario.ProprietarioDTOMapper;
 import adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel;
+import adaptacao.detran.treinamentocrud.repository.proprietario.ProprietarioDAO;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,10 +11,10 @@ import java.util.List;
 
 public class ProprietarioServices {
 
-    private final adaptacao.detran.treinamentocrud.repository.proprietario.ProprietarioDAO proprietarioDAO;
+    private final ProprietarioDAO proprietarioDAO;
     private final ProprietarioDTOMapper proprietarioDTOMapper;
 
-    public ProprietarioServices(adaptacao.detran.treinamentocrud.repository.proprietario.ProprietarioDAO proprietarioDAO, ProprietarioDTOMapper proprietarioDTOMapper) {
+    public ProprietarioServices(ProprietarioDAO proprietarioDAO, ProprietarioDTOMapper proprietarioDTOMapper) {
         this.proprietarioDAO = proprietarioDAO;
         this.proprietarioDTOMapper = proprietarioDTOMapper;
     }
@@ -26,6 +27,9 @@ public class ProprietarioServices {
 
     public ProprietarioDTO listarProprietarioPorId (Long id) throws SQLException {
         ProprietarioModel proprietarioModel = proprietarioDAO.findById(id);
+        if (proprietarioModel == null) {
+            return null;
+        }
         return proprietarioDTOMapper.map(proprietarioModel);
     }
 
@@ -52,7 +56,4 @@ public class ProprietarioServices {
     public void deleteProprietario(Long id) throws SQLException {
         proprietarioDAO.delete(id);
     }
-
-
-
 }
