@@ -4,12 +4,6 @@ import adaptacao.detran.treinamentocrud.model.veiculo.LogModel;
 
 public class LogMapper {
 
-    private final VeiculoMapper veiculoMapper;
-
-    public LogMapper(VeiculoMapper veiculoMapper) {
-        this.veiculoMapper = veiculoMapper;
-    }
-
     public LogModel map(LogDTO logDTO) {
 
         LogModel logModel = new LogModel();
