@@ -12,16 +12,18 @@ public class IbatisConfig {
     private static final SqlMapClient sqlMapClient;
 
     static {
+        //Reader reader = null;
         try {
-            String resource = "sql-map-config.xml";
+            String resource = "/home/ivens/desenvolvimento/projetos/java/treinamentoCRUD/src/main/resources/sql-map-config.xml";
             Reader reader = Resources.getResourceAsReader(resource);
             sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Erro ao construir o SqlMapClient: " + e, e);
+            // Lança um erro fatal claro
+            throw new ExceptionInInitializerError("Erro CRÍTICO ao inicializar o iBATIS: Falha ao carregar XMLs ou Properties: " + e.getMessage());
         } catch (Throwable e) {
             e.printStackTrace();
-            throw e;
+            throw new ExceptionInInitializerError("Erro CRÍTICO na inicialização do SqlMapClient: " + e.getMessage());
         }
     }
 

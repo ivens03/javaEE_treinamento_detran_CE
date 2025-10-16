@@ -7,6 +7,7 @@
 <head>
     <title>Painel de Gerenciamento Unificado</title>
     <style>
+        /* Estilos CSS (manter os originais para consistência visual) */
         body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
         .container { max-width: 1200px; margin: auto; }
         .form-section, .list-section { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
@@ -16,13 +17,13 @@
         .form-row .form-group { flex: 1; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
         input[type="text"], select { width: 98%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { padding: 10px 20px; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button, input[type="submit"] { padding: 10px 20px; color: white; border: none; cursor: pointer; border-radius: 4px; }
         .btn-salvar { background-color: #28a745; }
         .btn-atualizar { background-color: #007bff; }
         .btn-deletar { background-color: #dc3545; padding: 5px 10px; }
         .btn-editar { background-color: #ffc107; color: black; padding: 5px 10px; text-decoration: none; display: inline-block; }
         .btn-limpar { background-color: #6c757d; }
-        .message-box { margin-bottom: 20px; padding-top: 10px; display: none; } /* Começa escondido */
+        .message-box { margin-bottom: 20px; padding-top: 10px; }
         .erro { color: #d9534f; background-color: #f2dede; padding: 15px; border-radius: 4px; }
         .sucesso { color: #28a745; background-color: #d4edda; padding: 15px; border-radius: 4px; }
         table { width: 100%; border-collapse: collapse; }
@@ -35,14 +36,31 @@
 <div class="container">
     <h1>Painel de Gerenciamento Unificado</h1>
 
-    <%-- Seção unificada para exibir mensagens, controlada pelo JavaScript --%>
-    <div id="message-box" class="message-box">
-        <p id="message-text"></p>
+    <%-- Seção para exibir mensagens de sucesso/erro (passadas pelo Servlet via Session) --%>
+    <div class="message-box">
+        <%-- Exibe mensagem de sucesso se existir --%>
+        <c:if test="${not empty sessionScope.mensagem}">
+            <p class="sucesso">${sessionScope.mensagem}</p>
+            <%-- Limpa a mensagem após exibir --%>
+            <c:remove var="mensagem" scope="session"/>
+        </c:if>
+
+        <%-- Exibe mensagem de erro se existir --%>
+        <c:if test="${not empty sessionScope.mensagemErro}">
+            <p class="erro">${sessionScope.mensagemErro}</p>
+            <%-- Limpa a mensagem após exibir --%>
+            <c:remove var="mensagemErro" scope="session"/>
+        </c:if>
     </div>
 
     <div class="form-section">
         <h2 id="form-title">Cadastrar Novo Proprietário e Veículo</h2>
-        <form id="management-form">
+
+        <%-- O FORM agora submete diretamente para o Servlet, usando POST --%>
+        <form id="management-form" action="${pageContext.request.contextPath}/management" method="POST">
+
+            <%-- Parâmetros Ocultos para Ação e IDs --%>
+            <input type="hidden" id="action" name="action" value="createOrUpdate">
             <input type="hidden" id="proprietarioId" name="proprietarioId">
             <input type="hidden" id="veiculoId" name="veiculoId">
 
@@ -72,8 +90,9 @@
                 </div>
             </div>
 
-            <button type="button" id="save-button" class="btn-salvar">Salvar Novo</button>
-            <button type="button" id="clear-button" class="btn-limpar">Limpar Formulário</button>
+            <%-- Usa input type="submit" para submissão nativa --%>
+            <input type="submit" id="save-button" class="btn-salvar" value="Salvar Novo">
+            <button type="button" id="clear-button" class="btn-limpar" onclick="clearForm()">Limpar Formulário</button>
         </form>
     </div>
 
@@ -94,38 +113,47 @@
             </tr>
             </thead>
             <tbody id="vehicle-table-body">
-            <%-- O conteúdo desta tabela será gerado pelo JavaScript --%>
-            <%-- Exemplo inicial carregado pelo JSTL --%>
+
+            <%-- A lista é carregada diretamente pelo JSTL no doGet do Servlet --%>
             <c:forEach var="veic" items="${listaVeiculos}">
                 <tr data-vehicle-id="${veic.id}">
-                    <td>${veic.id}</td>
-                    <td>${veic.placa}</td>
-                    <td>${veic.renavam}</td>
-                    <td>${veic.proprietario.id}</td>
-                    <td>${veic.proprietario.nome}</td>
-                    <td>${veic.proprietario.cpf_cnpj}</td>
-                    <td>${veic.proprietario.endereco}</td>
+                    <td class="veiculo-id">${veic.id}</td>
+                    <td class="veiculo-placa">${veic.placa}</td>
+                    <td class="veiculo-renavam">${veic.renavam}</td>
+                    <td class="proprietario-id">${veic.proprietario.id}</td>
+                    <td class="proprietario-nome">${veic.proprietario.nome}</td>
+                    <td class="proprietario-cpfcnpj">${veic.proprietario.cpf_cnpj}</td>
+                    <td class="proprietario-endereco">${veic.proprietario.endereco}</td>
                     <td>
-                        <button class="btn-editar" onclick="populateForm(${veic.id})">Editar</button>
-                        <button class="btn-deletar" onclick="deleteVehicle(${veic.id})">Excluir</button>
+                            <%-- Botão Editar: usa JavaScript simples para COPIAR dados para o formulário --%>
+                        <button class="btn-editar" type="button" onclick="populateForm(this)">Editar</button>
+
+                            <%-- Botão Excluir: usa um mini-formulário para enviar a ação DELETE via POST --%>
+                        <form action="${pageContext.request.contextPath}/management" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="veiculoId" value="${veic.id}">
+                            <input type="submit" class="btn-deletar" value="Excluir" onclick="return confirm('Tem certeza que deseja excluir o veículo ${veic.id}?');">
+                        </form>
                     </td>
                 </tr>
             </c:forEach>
+
+            <c:if test="${empty listaVeiculos}">
+                <tr><td colspan="8">Nenhum registro cadastrado.</td></tr>
+            </c:if>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // URL base da sua nova API (Servlet de Gerenciamento)
-    const API_URL = '${pageContext.request.contextPath}/management';
     const form = document.getElementById('management-form');
     const saveButton = document.getElementById('save-button');
-    const clearButton = document.getElementById('clear-button');
     const formTitle = document.getElementById('form-title');
 
     // Mapeamento dos campos do formulário para fácil acesso
     const fields = {
+        action: document.getElementById('action'),
         proprietarioId: document.getElementById('proprietarioId'),
         veiculoId: document.getElementById('veiculoId'),
         cpf_cnpj: document.getElementById('cpf_cnpj'),
@@ -135,10 +163,6 @@
         renavam: document.getElementById('renavam')
     };
 
-    // Event Listeners
-    saveButton.addEventListener('click', saveChanges);
-    clearButton.addEventListener('click', clearForm);
-
     /**
      * Limpa o formulário e o redefine para o modo de criação.
      */
@@ -146,165 +170,41 @@
         form.reset();
         fields.proprietarioId.value = '';
         fields.veiculoId.value = '';
+        fields.action.value = 'createOrUpdate'; // Volta para a ação principal
         formTitle.textContent = 'Cadastrar Novo Proprietário e Veículo';
-        saveButton.textContent = 'Salvar Novo';
+        saveButton.value = 'Salvar Novo';
         saveButton.className = 'btn-salvar';
-        hideMessage();
     }
 
     /**
-     * Preenche o formulário com dados de um veículo existente para edição.
-     * Esta função busca os dados completos do servidor para garantir que estão atualizados.
+     * Copia os dados da linha da tabela (tradicional) para o formulário.
      */
-    async function populateForm(vehicleId) {
-        hideMessage();
-        try {
-            const response = await fetch(`${API_URL}?veiculoId=${vehicleId}`);
-            if (!response.ok) throw new Error('Falha ao buscar dados para edição.');
+    function populateForm(buttonElement) {
+        // Encontra o <tr> pai
+        const row = buttonElement.closest('tr');
 
-            const veiculo = await response.json();
+        // Copia os valores das células (tds)
+        fields.proprietarioId.value = row.querySelector('.proprietario-id').textContent;
+        fields.veiculoId.value = row.querySelector('.veiculo-id').textContent;
+        fields.cpf_cnpj.value = row.querySelector('.proprietario-cpfcnpj').textContent;
+        fields.nome.value = row.querySelector('.proprietario-nome').textContent;
+        fields.endereco.value = row.querySelector('.proprietario-endereco').textContent;
+        fields.placa.value = row.querySelector('.veiculo-placa').textContent;
+        fields.renavam.value = row.querySelector('.veiculo-renavam').textContent;
 
-            fields.proprietarioId.value = veiculo.proprietario.id;
-            fields.veiculoId.value = veiculo.id;
-            fields.cpf_cnpj.value = veiculo.proprietario.cpf_cnpj;
-            fields.nome.value = veiculo.proprietario.nome;
-            fields.endereco.value = veiculo.proprietario.endereco;
-            fields.placa.value = veiculo.placa;
-            fields.renavam.value = veiculo.renavam;
+        // Altera o estado do formulário para edição
+        fields.action.value = 'createOrUpdate'; // A ação já é tratada no Servlet
+        formTitle.textContent = `Editando Veículo ID: ${fields.veiculoId.value}`;
+        saveButton.value = 'Atualizar';
+        saveButton.className = 'btn-atualizar';
 
-            formTitle.textContent = `Editando Veículo ID: ${veiculo.id}`;
-            saveButton.textContent = 'Atualizar';
-            saveButton.className = 'btn-atualizar';
-            window.scrollTo(0, 0); // Rola a página para o topo
-        } catch (error) {
-            showMessage(error.message, true);
-        }
+        window.scrollTo(0, 0); // Rola a página para o topo
     }
 
-    /**
-     * Coleta os dados do formulário e os envia para o servidor.
-     * Decide se é uma operação de criação (POST) ou atualização (PUT).
-     */
-    async function saveChanges() {
-        const isUpdate = !!fields.veiculoId.value;
-        const url = isUpdate ? `${API_URL}?veiculoId=${fields.veiculoId.value}` : API_URL;
-        const method = isUpdate ? 'PUT' : 'POST';
-
-        const formData = {
-            proprietarioId: fields.proprietarioId.value,
-            veiculoId: fields.veiculoId.value,
-            cpf_cnpj: fields.cpf_cnpj.value,
-            nome: fields.nome.value,
-            endereco: fields.endereco.value,
-            placa: fields.placa.value,
-            renavam: fields.renavam.value,
-        };
-
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Ocorreu um erro no servidor.');
-            }
-
-            showMessage(result.message, false);
-            clearForm();
-            await refreshTable();
-
-        } catch (error) {
-            showMessage(error.message, true);
-        }
-    }
-
-    /**
-     * Envia uma requisição para deletar um veículo.
-     */
-    async function deleteVehicle(vehicleId) {
-        if (!confirm(`Tem certeza que deseja excluir o veículo de ID ${vehicleId}?`)) return;
-
-        try {
-            const response = await fetch(`${API_URL}?veiculoId=${vehicleId}`, {
-                method: 'DELETE'
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Ocorreu um erro ao deletar.');
-            }
-
-            showMessage(result.message, false);
-            await refreshTable();
-
-        } catch (error) {
-            showMessage(error.message, true);
-        }
-    }
-
-    /**
-     * Busca a lista atualizada de veículos e redesenha a tabela.
-     */
-    async function refreshTable() {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Não foi possível recarregar a lista.');
-
-            const veiculos = await response.json();
-            const tableBody = document.getElementById('vehicle-table-body');
-            tableBody.innerHTML = ''; // Limpa a tabela
-
-            if (veiculos.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="8">Nenhum registro cadastrado.</td></tr>';
-            } else {
-                veiculos.forEach(veic => {
-                    const row = `
-                        <tr data-vehicle-id="${veic.id}">
-                            <td>${veic.id}</td>
-                            <td>${veic.placa}</td>
-                            <td>${veic.renavam}</td>
-                            <td>${veic.proprietario.id}</td>
-                            <td>${veic.proprietario.nome}</td>
-                            <td>${veic.proprietario.cpf_cnpj}</td>
-                            <td>${veic.proprietario.endereco}</td>
-                            <td>
-                                <button class="btn-editar" onclick="populateForm(${veic.id})">Editar</button>
-                                <button class="btn-deletar" onclick="deleteVehicle(${veic.id})">Excluir</button>
-                            </td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                });
-            }
-        } catch(error) {
-            showMessage(error.message, true);
-        }
-    }
-
-    /**
-     * Exibe uma mensagem de sucesso ou erro para o usuário.
-     */
-    function showMessage(message, isError) {
-        const messageBox = document.getElementById('message-box');
-        const messageText = document.getElementById('message-text');
-
-        messageText.textContent = message;
-        messageBox.className = isError ? 'message-box erro' : 'message-box sucesso';
-        messageBox.style.display = 'block';
-    }
-
-    /**
-     * Esconde a caixa de mensagem.
-     */
-    function hideMessage() {
-        document.getElementById('message-box').style.display = 'none';
-    }
-
+    // Inicia o formulário em modo limpo ao carregar
+    window.onload = function() {
+        clearForm();
+    };
 </script>
 
 </body>

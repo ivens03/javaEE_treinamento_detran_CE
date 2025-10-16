@@ -11,26 +11,30 @@
         <result property="proprietario" column="id_proprietario" select="ProprietarioMapper.findProprietarioById"/>
     </resultMap>
 
-    <select id="findVeiculoById" resultMap="veiculoResultMap">
+    <select id="VeiculoMapper.findVeiculoById" resultMap="veiculoResultMap">
         SELECT id, placa, renavam, id_proprietario FROM veiculo.veiculo WHERE id = #id#
     </select>
 
-    <select id="findAllVeiculos" resultMap="veiculoResultMap">
+    <select id="VeiculoMapper.testetestetestetestetestetestetesteteste" resultClass="java.lang.Long">
+        SELECT 1::int8
+    </select>
+
+    <select id="VeiculoMapper.findAllVeiculos" resultMap="veiculoResultMap">
         SELECT id, placa, renavam, id_proprietario FROM veiculo.veiculo ORDER BY placa
     </select>
 
-    <insert id="saveVeiculo" parameterClass="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
+    <insert id="VeiculoMapper.saveVeiculo" parameterClass="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
         INSERT INTO veiculo.veiculo (placa, renavam, id_proprietario) VALUES (#placa#, #renavam#, #proprietario.id#)
         <selectKey resultClass="long" keyProperty="id">
             SELECT lastval()
         </selectKey>
     </insert>
 
-    <update id="updateVeiculo" parameterClass="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
+    <update id="VeiculoMapper.updateVeiculo" parameterClass="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
         UPDATE veiculo.veiculo SET placa = #placa#, renavam = #renavam#, id_proprietario = #proprietario.id# WHERE id = #id#
     </update>
 
-    <delete id="deleteVeiculo" parameterClass="java.lang.Long">
+    <delete id="VeiculoMapper.deleteVeiculo" parameterClass="java.lang.Long">
         DELETE FROM veiculo.veiculo WHERE id = #id#
     </delete>
 </sqlMap>
