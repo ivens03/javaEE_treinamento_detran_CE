@@ -2,12 +2,10 @@ package adaptacao.detran.treinamentocrud.repository.proprietario;
 
 import adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel;
 import com.ibatis.sqlmap.client.SqlMapClient;
-
 import java.sql.SQLException;
 import java.util.List;
 
 public class ProprietarioDAO {
-
     private final SqlMapClient sqlMapClient;
 
     public ProprietarioDAO(SqlMapClient sqlMapClient) {
@@ -15,24 +13,24 @@ public class ProprietarioDAO {
     }
 
     public ProprietarioModel findById(Long id) throws SQLException {
-        return (ProprietarioModel) sqlMapClient.queryForObject("findById", id);
+        return (ProprietarioModel) sqlMapClient.queryForObject("ProprietarioMapper.findProprietarioById", id);
     }
 
     @SuppressWarnings("unchecked")
     public List<ProprietarioModel> findAll() throws SQLException {
-        return sqlMapClient.queryForList("findAll");
+        return sqlMapClient.queryForList("ProprietarioMapper.findAllProprietarios");
     }
 
     public ProprietarioModel save(ProprietarioModel proprietario) throws SQLException {
-        sqlMapClient.insert("save", proprietario);
+        sqlMapClient.insert("ProprietarioMapper.saveProprietario", proprietario);
         return proprietario;
     }
 
     public void update(ProprietarioModel proprietario) throws SQLException {
-        sqlMapClient.update("update", proprietario);
+        sqlMapClient.update("ProprietarioMapper.updateProprietario", proprietario);
     }
 
     public void delete(Long id) throws SQLException {
-        sqlMapClient.delete("delete", id);
+        sqlMapClient.delete("ProprietarioMapper.deleteProprietario", id);
     }
 }

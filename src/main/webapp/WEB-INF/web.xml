@@ -25,4 +25,28 @@
         <url-pattern>/proprietario</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>ProprietarioServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>VeiculoServlet</servlet-name>
+        <servlet-class>adaptacao.detran.treinamentocrud.servelet.veiculo.VeiculoServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VeiculoServlet</servlet-name>
+        <url-pattern>/veiculo</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ManagementServlet</servlet-name>
+        <servlet-class>adaptacao.detran.treinamentocrud.servelet.ManagementServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ManagementServlet</servlet-name>
+        <url-pattern>/management</url-pattern>
+    </servlet-mapping>
+
 </web-app>

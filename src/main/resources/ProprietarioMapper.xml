@@ -4,30 +4,28 @@
         "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="ProprietarioMapper">
-
-    <select id="findById" resultClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
+    <select id="ProprietarioMapper.findProprietarioById" resultClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
         SELECT id, cpf_cnpj, nome, endereco FROM proprietario.proprietario WHERE id = #id#
     </select>
-
-    <select id="findAll" resultClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
-        SELECT id, cpf_cnpj, nome, endereco FROM proprietario.proprietario ORDER BY nome
+    <select id="ProprietarioMapper.testetestetestetestetestetestetesteteste" resultClass="java.lang.Long">
+        SELECT 1::int8
+    </select>
+    <select id="ProprietarioMapper.findAllProprietarios" resultClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
+        SELECT id, cpf_cnpj, nome, endereco FROM proprietario.proprietario /*ORDER BY nome*/
     </select>
 
-    <insert id="save" parameterClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
+    <insert id="ProprietarioMapper.saveProprietario" parameterClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
         INSERT INTO proprietario.proprietario (cpf_cnpj, nome, endereco) VALUES (#cpf_cnpj#, #nome#, #endereco#)
         <selectKey resultClass="long" keyProperty="id">
             SELECT lastval()
         </selectKey>
     </insert>
 
-    <update id="update" parameterClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
-        UPDATE proprietario.proprietario
-        SET cpf_cnpj = #cpf_cnpj#, nome = #nome#, endereco = #endereco#
-        WHERE id = #id#
+    <update id="ProprietarioMapper.updateProprietario" parameterClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
+        UPDATE proprietario.proprietario SET cpf_cnpj = #cpf_cnpj#, nome = #nome#, endereco = #endereco# WHERE id = #id#
     </update>
 
-    <delete id="delete" parameterClass="java.lang.Long">
+    <delete id="ProprietarioMapper.deleteProprietario" parameterClass="java.lang.Long">
         DELETE FROM proprietario.proprietario WHERE id = #id#
     </delete>
-
 </sqlMap>

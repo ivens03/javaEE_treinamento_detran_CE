@@ -1,5 +1,6 @@
 package adaptacao.detran.treinamentocrud.dto.veiculo;
 
+import adaptacao.detran.treinamentocrud.dto.proprietario.ProprietarioDTO;
 import adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel;
 
 public class VeiculoDTO {
@@ -8,7 +9,6 @@ public class VeiculoDTO {
     private String placa;
     private String renavam;
     private ProprietarioModel proprietario;
-
 
     public VeiculoDTO() {
     }
@@ -50,5 +50,15 @@ public class VeiculoDTO {
 
     public void setProprietario(ProprietarioModel proprietario) {
         this.proprietario = proprietario;
+    }
+
+    @Override
+    public String toString() {
+        return "VeiculoDTO{" +
+                "id=" + id +
+                ", placa='" + placa + '\'' +
+                ", renavam='" + renavam + '\'' +
+                ", proprietario=" + proprietario +
+                '}';
     }
 }

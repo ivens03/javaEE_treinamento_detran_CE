@@ -4,41 +4,37 @@
         "http://ibatis.apache.org/dtd/sql-map-2.dtd">
 
 <sqlMap namespace="VeiculoMapper">
-
     <resultMap id="veiculoResultMap" class="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
         <result property="id" column="id"/>
         <result property="placa" column="placa"/>
         <result property="renavam" column="renavam"/>
-        <result property="proprietario" column="id_proprietario" select="ProprietarioMapper.findById"/>
+        <result property="proprietario" column="id_proprietario" select="ProprietarioMapper.findProprietarioById"/>
     </resultMap>
 
-    <select id="findById" resultMap="veiculoResultMap">
+    <select id="VeiculoMapper.findVeiculoById" resultMap="veiculoResultMap">
         SELECT id, placa, renavam, id_proprietario FROM veiculo.veiculo WHERE id = #id#
     </select>
 
-    <select id="findAll" resultMap="veiculoResultMap">
+    <select id="VeiculoMapper.testetestetestetestetestetestetesteteste" resultClass="java.lang.Long">
+        SELECT 1::int8
+    </select>
+
+    <select id="VeiculoMapper.findAllVeiculos" resultMap="veiculoResultMap">
         SELECT id, placa, renavam, id_proprietario FROM veiculo.veiculo ORDER BY placa
     </select>
 
-    <insert id="save" parameterClass="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
-        INSERT INTO veiculo.veiculo (placa, renavam, id_proprietario)
-        VALUES (#placa#, #renavam#, #proprietario.id#)
+    <insert id="VeiculoMapper.saveVeiculo" parameterClass="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
+        INSERT INTO veiculo.veiculo (placa, renavam, id_proprietario) VALUES (#placa#, #renavam#, #proprietario.id#)
         <selectKey resultClass="long" keyProperty="id">
             SELECT lastval()
         </selectKey>
     </insert>
 
-    <update id="update" parameterClass="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
-        UPDATE veiculo.veiculo
-        SET
-            placa = #placa#,
-            renavam = #renavam#,
-            id_proprietario = #proprietario.id#
-        WHERE id = #id#
+    <update id="VeiculoMapper.updateVeiculo" parameterClass="adaptacao.detran.treinamentocrud.model.veiculo.VeiculoModel">
+        UPDATE veiculo.veiculo SET placa = #placa#, renavam = #renavam#, id_proprietario = #proprietario.id# WHERE id = #id#
     </update>
 
-    <delete id="delete" parameterClass="java.lang.Long">
+    <delete id="VeiculoMapper.deleteVeiculo" parameterClass="java.lang.Long">
         DELETE FROM veiculo.veiculo WHERE id = #id#
     </delete>
-
 </sqlMap>
