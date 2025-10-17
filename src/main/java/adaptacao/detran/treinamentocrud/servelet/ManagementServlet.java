@@ -12,7 +12,6 @@ import adaptacao.detran.treinamentocrud.repository.proprietario.ProprietarioDAO;
 import adaptacao.detran.treinamentocrud.repository.veiculo.VeiculoDAO;
 import adaptacao.detran.treinamentocrud.services.proprietario.ProprietarioServices;
 import adaptacao.detran.treinamentocrud.services.veiculo.VeiculoServices;
-// Removendo: import com.google.gson.Gson;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,13 +21,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-// Removendo: import java.io.BufferedReader;
 import java.io.IOException;
-// Removendo: import java.io.PrintWriter;
-import java.sql.SQLException; // Novo Importe
+import java.sql.SQLException;
 import java.util.List;
-// Removendo: import java.util.HashMap;
-// Removendo: import java.util.Map;
+
 
 public class ManagementServlet extends HttpServlet {
 
@@ -59,7 +55,6 @@ public class ManagementServlet extends HttpServlet {
         }
     }
 
-    // GET: Agora usado APENAS para carregar a página inicial (index.jsp) com os dados.
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // Redireciona a requisição para a função de listagem e encaminhamento
