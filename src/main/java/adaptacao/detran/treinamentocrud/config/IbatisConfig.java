@@ -14,7 +14,7 @@ public class IbatisConfig {
     static {
         //Reader reader = null;
         try {
-            String resource = "/home/ivens/desenvolvimento/projetos/java/treinamentoCRUD/src/main/resources/sql-map-config.xml";
+            String resource = "sql-map-config.xml";
             Reader reader = Resources.getResourceAsReader(resource);
             sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader);
         } catch (IOException e) {

@@ -7,23 +7,33 @@ import adaptacao.detran.treinamentocrud.dto.proprietario.ProprietarioDTO;
 import adaptacao.detran.treinamentocrud.dto.proprietario.ProprietarioDTOMapper;
 import adaptacao.detran.treinamentocrud.dto.veiculo.VeiculoDTO;
 import adaptacao.detran.treinamentocrud.dto.veiculo.VeiculoMapper;
-import adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel; // Novo Importe
+import adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel;
 import adaptacao.detran.treinamentocrud.repository.proprietario.ProprietarioDAO;
 import adaptacao.detran.treinamentocrud.repository.veiculo.VeiculoDAO;
 import adaptacao.detran.treinamentocrud.services.proprietario.ProprietarioServices;
 import adaptacao.detran.treinamentocrud.services.veiculo.VeiculoServices;
 import com.ibatis.sqlmap.client.SqlMapClient;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ManagementServlet extends HttpServlet {
@@ -32,7 +42,6 @@ public class ManagementServlet extends HttpServlet {
     private ProprietarioController proprietarioController;
     private VeiculoController veiculoController;
     private ProprietarioDTOMapper proprietarioDTOMapper;
-    // Removendo: private final Gson gson = new Gson();
 
     @Override
     public void init() throws ServletException {
@@ -55,47 +64,103 @@ public class ManagementServlet extends HttpServlet {
         }
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Redireciona a requisição para a função de listagem e encaminhamento
-        listarTodosEEncaminhar(req, resp);
+    private void gerarRelatorioPDF(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Connection connection = null;
+        try {
+            String extensao = "pdf";
+            String nomeArquivoJRXML = "report1";
+
+            String relPath = "/WEB-INF/relatorios/" + nomeArquivoJRXML + ".jasper";
+            String relNmFile = nomeArquivoJRXML + "." + extensao;
+
+            String pathReport = getServletContext().getRealPath(relPath);
+
+            // ✅ 1. Crie a conexão JDBC (substitua pelos dados do seu banco)
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost:5432/treinamento",  // ← ajuste para o nome do seu BD
+                    "postgres",                                // ← usuário do banco
+                    "postgres"                                   // ← senha do banco
+            );
+
+            // ✅ 2. Parâmetros do relatório (se tiver parâmetros no iReport)
+            Map<String, Object> params = new HashMap<>();
+
+            // ✅ 3. Gera o relatório passando a conexão
+            JasperPrint jasperPrint = JasperFillManager.fillReport(pathReport, params, connection);
+
+            // ✅ 4. Exporta para PDF
+            byte[] bytes = JasperExportManager.exportReportToPdf(jasperPrint);
+
+            if (bytes != null && bytes.length > 0) {
+                response.setHeader("Cache-Control", "no-store");
+                response.setHeader("Expires", "-1");
+                response.setHeader("Pragma", "no-cache");
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition", "inline; filename=\"" + relNmFile + "\"");
+                response.setHeader("Content-transfer-encoding", "binary");
+                response.setContentLength(bytes.length);
+
+                ServletOutputStream outputStream = response.getOutputStream();
+                outputStream.write(bytes);
+                outputStream.flush();
+                outputStream.close();
+
+            } else {
+                response.sendError(HttpServletResponse.SC_NO_CONTENT, "Relatório sem conteúdo.");
+            }
+
+        } catch (Exception e) {
+            logger.error("Erro ao gerar o relatório", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erro: " + e.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ignore) {}
+            }
+        }
     }
 
-    // POST: Consolida as operações de CREATE, UPDATE e DELETE.
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String action = req.getParameter("action");
+
+        if ("gerarRelatorio".equals(action)) {
+            gerarRelatorioPDF(req, resp);
+        } else {
+            listarTodosEEncaminhar(req, resp);
+        }
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        // O parâmetro 'action' é enviado pelo formulário ou por botões de exclusão.
         String action = request.getParameter("action");
         String veiculoIdParam = request.getParameter("veiculoId");
         String proprietarioIdParam = request.getParameter("proprietarioId");
 
         try {
             if ("createOrUpdate".equals(action)) {
-                // 1. Processa dados do Proprietário
                 ProprietarioDTO propDTO = new ProprietarioDTO();
                 propDTO.setCpf_cnpj(request.getParameter("cpf_cnpj"));
                 propDTO.setNome(request.getParameter("nome"));
                 propDTO.setEndereco(request.getParameter("endereco"));
 
-                // 2. Decide se é CREATE (veiculoId vazio) ou UPDATE (veiculoId com valor)
                 if (veiculoIdParam == null || veiculoIdParam.isEmpty()) {
-                    // --- CREATE ---
-                    // Salva o novo Proprietário para obter o ID
                     ProprietarioDTO propSalvo = proprietarioController.saveProprietario(propDTO);
                     ProprietarioModel propModel = this.proprietarioDTOMapper.map(propSalvo);
 
-                    // Cria e salva o Veículo, associando ao proprietário salvo
                     VeiculoDTO veiculoDTO = new VeiculoDTO(null, request.getParameter("placa"), request.getParameter("renavam"), propModel);
                     veiculoController.saveVeiculo(veiculoDTO);
 
                     request.getSession().setAttribute("mensagem", "Registro criado com sucesso!");
                 } else {
-                    // --- UPDATE ---
                     long propId = Long.parseLong(proprietarioIdParam);
                     long veiculoId = Long.parseLong(veiculoIdParam);
 
-                    propDTO.setId(propId); // Garante que o ID do proprietário está no DTO
+                    propDTO.setId(propId);
                     proprietarioController.atualizarProprietario(propId, propDTO);
 
                     ProprietarioModel propModel = this.proprietarioDTOMapper.map(propDTO);
@@ -106,7 +171,6 @@ public class ManagementServlet extends HttpServlet {
                     request.getSession().setAttribute("mensagem", "Registro ID " + veiculoId + " atualizado com sucesso!");
                 }
             } else if ("delete".equals(action)) {
-                // --- DELETE ---
                 if (veiculoIdParam != null && !veiculoIdParam.isEmpty()) {
                     long veiculoId = Long.parseLong(veiculoIdParam);
                     veiculoController.deleteVeiculo(veiculoId);
@@ -120,14 +184,11 @@ public class ManagementServlet extends HttpServlet {
             request.getSession().setAttribute("mensagemErro", "Erro ao executar ação: " + e.getMessage());
         }
 
-        // Redireciona para o doGet, que carrega a página e a lista atualizada
         listarTodosEEncaminhar(request, response);
     }
 
-    // Método auxiliar para carregar dados e encaminhar para o JSP (retirado do ProprietarioServlet)
     private void listarTodosEEncaminhar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            // As listas são necessárias para renderizar a tabela
             List<ProprietarioDTO> listaProprietarios = proprietarioController.listarTodosProprietarios();
             request.setAttribute("listaProprietarios", listaProprietarios);
 
@@ -139,7 +200,6 @@ public class ManagementServlet extends HttpServlet {
             request.setAttribute("mensagemErro", "Erro ao carregar as listas: " + e.getMessage());
         }
 
-        // Encaminha para o JSP (o JSP fará a renderização)
         String destino = "/index.jsp";
         RequestDispatcher dispatcher = request.getRequestDispatcher(destino);
         dispatcher.forward(request, response);
