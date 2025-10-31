@@ -14,12 +14,16 @@
         SELECT id, cpf_cnpj, nome, endereco FROM proprietario.proprietario /*ORDER BY nome*/
     </select>
 
-    <insert id="ProprietarioMapper.saveProprietario" parameterClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
-        INSERT INTO proprietario.proprietario (cpf_cnpj, nome, endereco) VALUES (#cpf_cnpj#, #nome#, #endereco#)
-        <selectKey resultClass="long" keyProperty="id">
-            SELECT lastval()
+    <insert id="ProprietarioMapper.saveProprietario"
+            parameterClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
+        INSERT INTO proprietario.proprietario (cpf_cnpj, nome, endereco)
+        VALUES (#cpf_cnpj#, #nome#, #endereco#);
+
+        <selectKey keyProperty="id" resultClass="long">
+            SELECT currval(pg_get_serial_sequence('proprietario.proprietario', 'id'))
         </selectKey>
     </insert>
+
 
     <update id="ProprietarioMapper.updateProprietario" parameterClass="adaptacao.detran.treinamentocrud.model.proprietario.ProprietarioModel">
         UPDATE proprietario.proprietario SET cpf_cnpj = #cpf_cnpj#, nome = #nome#, endereco = #endereco# WHERE id = #id#

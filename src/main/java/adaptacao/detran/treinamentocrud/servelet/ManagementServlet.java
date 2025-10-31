@@ -184,7 +184,7 @@ public class ManagementServlet extends HttpServlet {
             request.getSession().setAttribute("mensagemErro", "Erro ao executar ação: " + e.getMessage());
         }
 
-        listarTodosEEncaminhar(request, response);
+        response.sendRedirect(request.getContextPath() + "/management");
     }
 
     private void listarTodosEEncaminhar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
